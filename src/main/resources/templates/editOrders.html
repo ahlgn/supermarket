@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>订单管理</title>
+		<!-- Bootstrap core CSS -->
+		<link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="/asserts/css/dashboard.css"  rel="stylesheet">
+		<style type="text/css">
+			/* Chart.js */
+			
+			@-webkit-keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			@keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			.chartjs-render-monitor {
+				-webkit-animation: chartjs-render-animation 0.001s;
+				animation: chartjs-render-animation 0.001s;
+			}
+		</style>
+	</head>
+
+	<body>
+	<!--引入顶部bar-->
+	<div th:replace="commons/bar::topbar"></div>
+
+	<div class="container-fluid">
+		<div class="row">
+			<!--引入侧边栏-->
+			<div th:replace="commons/bar::#sidebar(activeUri='orders')"></div>
+
+
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+					<!--需要区分是员工修改还是添加；-->
+					<form th:action="@{/orders/addorders}" method="post">
+						<!--发送put请求修改员工数据-->
+						<!--
+						1、SpringMVC中配置HiddenHttpMethodFilter;（SpringBoot自动配置好的）
+						2、页面创建一个post表单
+						3、创建一个input项，name="_method";值就是我们指定的请求方式
+						-->
+						<input type="hidden" name="_method" value="put" th:if="${orders!=null}"/>
+						<input type="hidden" name="id" th:if="${orders!=null}" th:value="${orders.id}">
+<!--						<div class="form-group">-->
+<!--							<label>订单编号</label>-->
+<!--							<input name="id" type="text" class="form-control" placeholder="id" th:value="${orders!=null}?${orders.id}">-->
+<!--						</div>-->
+						<div class="form-group">
+							<label>商品名称</label>
+							<select class="form-control" id="productname" name="productName"  >
+								<option th:selected="${orders!=null}?${pro.name==orders.productName}" th:value="${pro.name}"  th:each="pro:${product}" th:text="${pro.name}"></option>
+							</select>
+						</div>
+						库存剩余:<label id="stock" ></label>
+						<div class="form-group">
+							<label>数量</label>
+							<input name="productNum"  id="productnum" type="text" class="form-control" placeholder="1" th:value="${orders!=null}?${orders.productNum}:1">
+						</div>
+
+						<div class="form-group">
+							<label>客户姓名</label>
+							<select class="form-control" name="customerName">
+								<option th:selected="${orders!=null}?${cus.name==orders.customerName}" th:value="${cus.name}"  th:each="cus:${customer}" th:text="${cus.name}"></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>商品单价</label>
+							<input  name="unitPrice" id="productunitprice" type="text" readonly="readonly" class="form-control"  placeholder="0.00" th:value="${orders!=null}?${orders.unitPrice}">
+						</div>
+						<div class="form-group">
+							<label>总价</label>
+							<input  name="totalPrice" type="text" id="producttotalprice"  readonly="readonly" class="form-control" placeholder="0.00" th:value="${orders!=null}?${orders.totalPrice}">
+						</div>
+						<div class="form-group">
+							<label>经办人</label>
+							<select class="form-control" name="personnelName">
+								<option th:selected="${orders!=null}?${per.name==orders.personnelName}" th:value="${per.name}"  th:each="per:${personnel}" th:text="${per.name}"></option>
+							</select>
+						</div>
+						<button type="submit" class="btn btn-primary" th:text="${orders!=null}?'修改':'添加'">添加</button>
+					</form>
+				</main>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript
+    ================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" src="/asserts/js/jquery.js"></script>
+		<script type="text/javascript" src="/asserts/js/popper.min.js" ></script>
+		<script type="text/javascript" src="/asserts/js/bootstrap.min.js" ></script>
+
+		<!-- Icons -->
+<!--		<script type="text/javascript" src="/asserts/js/feather.min.js"></script>-->
+		<script>
+			$(function(){
+				ajax();
+				$("#productname").change(function(){
+					var productname = $("#productname").val();
+					// alert(productname);
+					$.ajax({
+						type: "post",
+						url:"http://localhost:8080/orders/getunitprice",
+						contentType: "application/json; charset=utf-8",
+						data: JSON.stringify({
+							"name" : productname
+						}),
+						dataType: "json",
+						async : true,
+						success: function(result){
+							$("#productunitprice").val(result.price);
+							$("#stock").html(result.stock);
+							if(result.stock<=200){
+								$("#stock").attr("style","color:red;")
+							}else{
+								$("#stock").attr("style","color:black;")
+							}
+							calcTotalPrice();
+						},
+						error: function(){
+							alert("error");
+						}
+					});
+				});
+				//ajax异步请求通过name获取单价
+				function ajax(){
+					var productname = $("#productname").val();
+					// alert(productname);
+					$.ajax({
+						type: "post",
+						url:"http://47.103.1.87:8080/orders/getunitprice",
+						contentType: "application/json; charset=utf-8",
+						data: JSON.stringify({
+							"name" : productname
+						}),
+						dataType: "json",
+						async : true,
+						success: function(result){
+							$("#productunitprice").val(result.price);
+							$("#stock").html(result.stock);
+							if(result.stock<=200){
+								$("#stock").attr("style","color:red;")
+							}else{
+								$("#stock").attr("style","color:black;")
+							}
+							calcTotalPrice();
+						},
+						error: function(){
+							alert("error");
+						}
+					});
+				}
+				//计算总价并显示到总价控件中
+				function calcTotalPrice(){
+					var num = parseInt($("#productnum").val());
+					var unitprice= parseFloat($("#productunitprice").val());
+					var stock=parseFloat($("#stock").html());
+					if(isNaN(num)||num<0){
+						alert("请输入正确数量")
+						return;
+					}
+					if(stock-num<0){
+						alert("商品库存数不足,无法提交此订单,请修改商品订购数量");
+						$("#productnum").val(1);
+						calcTotalPrice();
+						return;
+					}
+					var totalprice=num*unitprice;
+					$("#producttotalprice").val(totalprice.toFixed(2));
+				}
+
+			    //失去焦点事件 根据数量调整总价
+                $("#productnum").blur(function () {
+					var num = parseInt($("#productnum").val());
+					var unitprice= parseFloat($("#productunitprice").val());
+					var stock=parseFloat($("#stock").html());
+					if(isNaN(num)||num<0){
+						alert("请输入正确数量")
+						return;
+					}
+					if(stock-num<0){
+						alert("商品库存数不足,无法提交此订单,请修改商品订购数量");
+						$("#productnum").val(1);
+						calcTotalPrice();
+						return;
+					}
+					var totalprice=num*unitprice;
+					$("#producttotalprice").val(totalprice.toFixed(2));
+				});
+			});
+		</script>
+
+	</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>员工信息页面</title>
+		<!-- Bootstrap core CSS -->
+		<link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="/asserts/css/dashboard.css"  rel="stylesheet">
+		<style type="text/css">
+			/* Chart.js */
+			
+			@-webkit-keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			@keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			.chartjs-render-monitor {
+				-webkit-animation: chartjs-render-animation 0.001s;
+				animation: chartjs-render-animation 0.001s;
+			}
+		</style>
+	</head>
+
+	<body>
+	<!--引入顶部bar-->
+	<div th:replace="commons/bar::topbar"></div>
+
+	<div class="container-fluid">
+		<div class="row">
+			<!--引入侧边栏-->
+			<div th:replace="commons/bar::#sidebar(activeUri='personnel')"></div>
+
+
+		<div class="container-fluid">
+			<div class="row">
+
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+					<!--需要区分是员工修改还是添加；-->
+					<form th:action="@{/personnel/addpersonnel}" method="post">
+						<!--发送put请求修改员工数据-->
+						<!--
+						1、SpringMVC中配置HiddenHttpMethodFilter;（SpringBoot自动配置好的）
+						2、页面创建一个post表单
+						3、创建一个input项，name="_method";值就是我们指定的请求方式
+						-->
+						<input type="hidden" name="_method" value="put" th:if="${personnel!=null}"/>
+						<input type="hidden" name="id" th:if="${personnel!=null}" th:value="${personnel.id}">
+						<div class="form-group">
+							<label>员工姓名</label>
+							<input name="name" type="text" class="form-control" placeholder="name" th:value="${personnel!=null}?${personnel.name}">
+						</div>
+<!--						<div class="form-group">-->
+<!--							<label>部门职位</label>-->
+<!--							&lt;!&ndash;提交的是部门的id&ndash;&gt;-->
+<!--							<select class="form-control" name="department.id">-->
+<!--&lt;!&ndash;								<option th:selected="${personnel!=null}?${dept.id == emp.department.id}" th:value="${dept.id}" th:each="dept:${depts}" th:text="${dept.departmentName}">1</option>&ndash;&gt;-->
+<!--							</select>-->
+<!--						</div>-->
+						<div class="form-group">
+							<label>员工职位</label>
+<!--							<input name="position" type="text" class="form-control" placeholder="position" th:value="${personnel!=null}?${personnel.position}">-->
+							<select class="form-control" name="position">
+								<option th:selected="${personnel!=null}?${dept.dep==personnel.position}" th:value="${dept.dep}"  th:each="dept:${department}" th:text="${dept.dep}"></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>联系方式</label>
+							<input name="phone" id="phone" type="text" class="form-control" placeholder="phone" th:value="${personnel!=null}?${personnel.phone}">
+							<a id="checkPhoneNum"></a>
+						</div>
+
+						<div class="form-group">
+							<label>销售额</label>
+							<input name="sales" type="text" readonly="readonly" class="form-control"  placeholder="0" th:value="${personnel!=null}?${personnel.sales}:0">
+						</div>
+						<button type="submit" class="btn btn-primary" th:text="${personnel!=null}?'修改':'添加'">添加</button>
+					</form>
+				</main>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript
+    ================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" src="/asserts/js/jquery.js"></script>
+		<script type="text/javascript" src="/asserts/js/popper.min.js" ></script>
+		<script type="text/javascript" src="/asserts/js/bootstrap.min.js" ></script>
+
+		<!-- Icons -->
+<!--		<script type="text/javascript" src="/asserts/js/feather.min.js"></script>-->
+		<script>
+			// $(function(){
+			// 	var checkPhone = /^1[34578]\d{9}$/;
+			// 	// alert("1");
+			// 	function checkPhone(){
+			// 		var phonenum=$("#phone").val();
+			// 		// alert(phonenum);
+			// 		if(checkPhone.test(phonenum)==false){
+			// 			// alert("请输入正确的手机号码");
+			// 			$("#checkPhoneNum").html("请输入正确的手机号码");
+			// 			$("#checkPhoneNum").CSS(style,"color:red");
+			// 			return;
+			// 		}
+			//
+			// 	};
+			// 	$("#phone").blur();
+		</script>
+
+	</body>
+
+</html>

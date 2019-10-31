@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<title>客户管理</title>
+		<!-- Bootstrap core CSS -->
+		<link href="/asserts/css/bootstrap.min.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="/asserts/css/dashboard.css"  rel="stylesheet">
+		<style type="text/css">
+			/* Chart.js */
+			
+			@-webkit-keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			@keyframes chartjs-render-animation {
+				from {
+					opacity: 0.99
+				}
+				to {
+					opacity: 1
+				}
+			}
+			
+			.chartjs-render-monitor {
+				-webkit-animation: chartjs-render-animation 0.001s;
+				animation: chartjs-render-animation 0.001s;
+			}
+		</style>
+	</head>
+
+	<body>
+	<!--引入顶部bar-->
+	<div th:replace="commons/bar::topbar"></div>
+
+	<div class="container-fluid">
+		<div class="row">
+			<!--引入侧边栏-->
+			<div th:replace="commons/bar::#sidebar(activeUri='customer')"></div>
+
+
+
+
+
+				<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+
+					<!--需要区分是员工修改还是添加；-->
+					<form th:action="@{/customer/addcustomer}" method="post">
+						<!--发送put请求修改员工数据-->
+						<!--
+						1、SpringMVC中配置HiddenHttpMethodFilter;（SpringBoot自动配置好的）
+						2、页面创建一个post表单
+						3、创建一个input项，name="_method";值就是我们指定的请求方式
+						-->
+						<input type="hidden" name="_method" value="put" th:if="${customer!=null}"/>
+						<input type="hidden" name="id" th:if="${customer!=null}" th:value="${customer.id}">
+						<div class="form-group">
+							<label>客户姓名</label>
+							<input name="name" type="text" class="form-control" placeholder="客户姓名" th:value="${customer!=null}?${customer.name}">
+<!--							<input name="name" type="text" class="form-control" placeholder="客户姓名" th:value="${customer.name}">-->
+						</div>
+
+						<div class="form-group">
+							<label>性别</label><br/>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="sex" value="男" th:checked="${customer!=null}?${customer.sex=='男'}">
+								<label class="form-check-label">男</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="sex" value="女" th:checked="${customer!=null}?${customer.sex=='女'}">
+								<label class="form-check-label">女</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>客户等级</label>
+							<select class="form-control" name="level">
+								<option th:selected="${customer!=null}?${lev.level==customer.level}" th:value="${lev.level}"  th:each="lev:${level}" th:text="${lev.level}"></option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>联系方式</label>
+							<input name="phone" type="text" class="form-control" placeholder="1xxxxxxxxxx" th:value="${customer!=null}?${customer.phone}">
+						</div>
+						<div class="form-group">
+							<label>收货地址</label>
+							<input name="address" type="text" class="form-control" placeholder="收货地址" th:value="${customer!=null}?${customer.address}">
+						</div>
+
+
+						<button type="submit" class="btn btn-primary" th:text="${customer!=null}?'修改':'添加'">添加</button>
+					</form>
+				</main>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript
+    ================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript" src="/asserts/js/jquery-3.2.1.slim.min.js"></script>
+		<script type="text/javascript" src="/asserts/js/popper.min.js" ></script>
+		<script type="text/javascript" src="/asserts/js/bootstrap.min.js" ></script>
+
+		<!-- Icons -->
+<!--		<script type="text/javascript" src="/asserts/js/feather.min.js"></script>-->
+		<script>
+			// feather.replace()
+		</script>
+
+	</body>
+
+</html>
